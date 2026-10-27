@@ -1,5 +1,5 @@
-const getRandomInteger = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+
+import { getRandomInteger, getRandomArrayElement } from './util.js';
 
 const NAMES = [
   'Артём',
@@ -28,9 +28,6 @@ const DESCRIPTIONS = [
   'Прекрасное место.',
   'Хороший день для фотографии.'
 ];
-
-const getRandomArrayElement = (elements) =>
-  elements[getRandomInteger(0, elements.length - 1)];
 
 let commentId = 1;
 
