@@ -1,6 +1,13 @@
 const bigPicture = document.querySelector('.big-picture');
 const closeButton = bigPicture.querySelector('.big-picture__cancel');
 const commentsList = bigPicture.querySelector('.social__comments');
+const commentCount = bigPicture.querySelector('.social__comment-count');
+const commentsLoader = bigPicture.querySelector('.comments-loader');
+
+const COMMENTS_PER_STEP = 5;
+
+let currentComments = [];
+let shownComments = 0;
 
 const closeBigPicture = () => {
   bigPicture.classList.add('hidden');
@@ -15,18 +22,13 @@ function onDocumentKeydown(evt) {
   }
 }
 
-const openBigPicture = (photo) => {
-  const image = bigPicture.querySelector('.big-picture__img img');
-  image.src = photo.url;
-  image.alt = photo.description;
+const renderComments = () => {
+  const nextComments = currentComments.slice(
+    shownComments,
+    shownComments + COMMENTS_PER_STEP
+  );
 
-  bigPicture.querySelector('.likes-count').textContent = photo.likes;
-  bigPicture.querySelector('.comments-count').textContent = photo.comments.length;
-  bigPicture.querySelector('.social__caption').textContent = photo.description;
-
-  commentsList.innerHTML = '';
-
-  photo.comments.forEach((comment) => {
+  nextComments.forEach((comment) => {
     const item = document.createElement('li');
     item.classList.add('social__comment');
 
@@ -46,8 +48,29 @@ const openBigPicture = (photo) => {
     commentsList.appendChild(item);
   });
 
-  bigPicture.querySelector('.social__comment-count').classList.add('hidden');
-  bigPicture.querySelector('.comments-loader').classList.add('hidden');
+  shownComments += nextComments.length;
+
+  commentCount.classList.remove('hidden');
+  commentCount.innerHTML = `${shownComments} из <span class="comments-count">${currentComments.length}</span> комментариев`;
+
+  commentsLoader.classList.toggle(
+    'hidden',
+    shownComments >= currentComments.length
+  );
+};
+
+const openBigPicture = (photo) => {
+  const image = bigPicture.querySelector('.big-picture__img img');
+  image.src = photo.url;
+  image.alt = photo.description;
+
+  bigPicture.querySelector('.likes-count').textContent = photo.likes;
+  bigPicture.querySelector('.social__caption').textContent = photo.description;
+
+  commentsList.innerHTML = '';
+  currentComments = photo.comments;
+  shownComments = 0;
+  renderComments();
 
   bigPicture.classList.remove('hidden');
   document.body.classList.add('modal-open');
@@ -55,5 +78,6 @@ const openBigPicture = (photo) => {
 };
 
 closeButton.addEventListener('click', closeBigPicture);
+commentsLoader.addEventListener('click', renderComments);
 
 export { openBigPicture };
